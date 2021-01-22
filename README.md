@@ -20,8 +20,11 @@ Operacja
 Istnieje też możliwość kupna specjalnego kuponu, który zwalnia cię z różnych opłat. Tych kuponów są cztery rodzaje:
 
 srebrny - zwalniający z opłat instalacyjnych
+
 złoty - zwalniający z opłat instalacyjnych i aktywaycyjnych
+
 diamentowy - zwalniający ze wszystkich opłat oprócz opłat operacyjnych
+
 dyskontowy - obniżający cenę kupna koparki o 50%
 
 * ^ do wprowadzenia później *
