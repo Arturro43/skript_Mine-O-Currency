@@ -1,5 +1,7 @@
 # skript_Mine-O-Currency
 
+VERY EARLY WIP
+
 INTRODUCING: Mine-o-waluty
 
 Mine-o-waluty, lub też w skrócie minowaluty to system pieniężny opierający się na wartości przedmiotów i trudności ich zdobycia.
