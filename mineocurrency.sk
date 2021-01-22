@@ -1,0 +1,137 @@
+options:
+
+    tag: &c[&afappinCore&c]
+
+    koparka-block: diamond block
+    koparka-name: &6Koparka Mine-o-walut
+    koparka-lore: &cModuł koparki. &4Postawienie kosztuje!
+
+    blockcost: 33
+    blockmaterial: diamond
+
+    activationcost: 23
+    activationcostdealer: 98
+    activationmaterial: diamond
+
+    buycost: 12
+    buycostdealer: 2
+    buymaterial: diamond
+
+    dealercost: 128
+    dealermaterial: diamond
+    
+    msg-blockplaced: &aPołożyłeś koparkę. Teraz połóż na niej tabliczkę. &cPamiętaj że to kosztuje!
+    msg-signplaced: &aUtworzyłeś koparkę. Miłego kopania!
+    msg-bought: &aKupiłeś koparkę. Teraz ją połóż i postaw na niej tabliczkę. &cPamiętaj że to kosztuje! &aChcesz to ogłosić? Napisz &c/koparka tak
+    msg-notenough: &cNie masz wystarczającej ilości materiałów.
+    msg-notactive: &cNie kupiłeś koparki, lub upłynął limit czasu!
+    broadcastbecomedealer: &6został nowym dealerem koparek minowalut. Zgłoś się do niego pisząc &c/dealer [nick] [wiadomość]!
+    dealercongratulations: &aGratulacje, zostałeś nowym dealerem koparek mine-o-walut! Ciesz się nowymi możliwościami!
+
+on place of {@koparka-block}:
+    if "%lore of player's tool%" contains "{@koparka-lore}":
+        if player has {@blockcost} {@blockmaterial}:
+            remove {@blockcost} {@blockmaterial} from player's inventory
+            set {blockmaterialvar} to {@blockmaterial}
+            add {@blockcost} to {skarbiec.%{blockmaterialvar}%}
+            send formatted "{@tag}&8» {@msg-blockplaced}}!" to player
+        else:
+            send formatted "{@tag}&8» {@msg-notenough}" to player
+
+on sign change:
+    if line 1 is "[koparka]" or "[Koparka]":
+        loop all blocks in radius 1 around event-block:
+            if y-location of loop-block is y-location of event-block:
+                if loop-block is {@koparka-block}:
+                    if {isDealer.%player%} is true:
+                        if player has {@activationcostdealer} {@activationmaterial}:
+                            remove {@activationcostdealer} {@material} from player's inventory
+                            set {activationmaterialvar} to {@activationmaterial}
+                            add {@activationcostdealer} to {skarbiec.%{activationmaterialvar}%}
+                            set line 1 to "&a[Koparka]"
+                            send formatted "{@tag}&8» {@msg-signplaced}" to player
+                        else:
+                            send formatted "{@tag}&8» {@msg-notenough}" to player
+                    else:
+                        if player has {@activationcost} {@activationmaterial}:
+                            remove {@activationcost} {@material} from player's inventory
+                            set {activationmaterialvar} to {@activationmaterial}
+                            add {@activationcost} to {skarbiec.%{activationmaterialvar}%}
+                            set line 1 to "&a[Koparka]"
+                            send formatted "{@tag}&8» {@msg-signplaced}" to player
+                        else:
+                            send formatted "{@tag}&8» {@msg-notenough}" to player
+command /koparka [<text>]:
+    trigger:
+        if arg-1 is "buy":
+            if {isDealer.%player%} is true:
+                if player has {@buycostdealer} {@buymaterial}:
+                    remove {@buycostdealer} {@buymaterial} from player's inventory
+                    set {buymaterialvar} to {@buymaterial}
+                    add {@buycostdealer} to {skarbiec.%{buymaterialvar}%}
+                    give player 1 {@koparka-block} named {@koparka-name} with lore {@koparka-lore}
+                    send formatted "{@tag}&8» {@msg-bought}" to player
+                    set {bought.%player%} to 1
+                    wait 20 seconds
+                    set {bought.%player%} to 0
+                    stop
+                else:
+                    send formatted "{@tag}&8» {@msg-notenough}" to player
+            else:
+                if player has {@buycost} {@buymaterial}:
+                    remove {@buycost} {@buymaterial} from player's inventory
+                    set {buymaterialvar} to {@buymaterial}
+                    add {@buycost} to {skarbiec.%{buymaterialvar}%}
+                    give player 1 {@koparka-block} named {@koparka-name} with lore {@koparka-lore}
+                    send formatted "{@tag}&8» {@msg-bought}" to player
+                    set {bought.%player%} to 1
+                    wait 20 seconds
+                    set {bought.%player%} to 0
+                    stop
+                else:
+                    send formatted "{@tag}&8» {@msg-notenough}" to player
+        else if arg-1 is "tak":
+            if {bought.%player%} is 1:
+                broadcast "&aGracz &c%player% &akupił koparkę minowalut!"
+            else:
+                send formatted "{@tag}&8» {@msg-notactive}" to player
+        else if arg-1 is "menu":
+            open chest with 3 rows named "Menu koparki" to player
+		    format slot 3 of player with 1 of steak named "cos" to run "komenda"
+command /zostandealeremkoparek:
+    trigger:
+        send "&aBycie dealerem koparek minowalut ma wiele plusów m.in.:" to the player
+        send "&aDodatkowy dochód, możliwość zdobycia popularności, czy też rabaty na koparki minowalut" to the player
+        send "&aZostanie dealerem minowalut &cjest kosztowne &alecz się opłaca!" to the player
+        send "&aItemy potrzebne na zostanie dealerem możesz zobaczyć pod komendą /dealer info" to the player
+        send "&aAbyś nie nadużywał możliwości wynikających z rabatu &ckoszty aktywacyjne są wyższe." to the player
+
+command /dealer [<text>]:
+    trigger:
+        if arg-1 is not set:
+            send "x" to the player
+        if arg-1 is "zostan":
+            if player has {@dealercost} {@dealermaterial}:
+                remove {@dealercost} {@dealermaterial} from player's inventory
+                set {dealermaterialvar} to {@dealermaterial}
+                add {@dealercost} to {skarbiec.%{dealermaterialvar}%}
+                set {isDealer.%player%} to true
+                broadcast "&6Gracz &a%player% {@broadcastbecomedealer}"
+                send formatted "{@tag}&8» {@dealercongratulations}"
+
+
+
+
+
+on rightclick on sign:
+    loop all blocks in radius 1 around event-block:
+        if y-location of loop-block is y-location of event-block:
+            if loop-block is {@koparka-block}:
+                if line 1 is "&a[Koparka]":
+                    set 
+
+
+
+on script load:
+    set {activationmaterialvar} to {@activationmaterial}
+    set {blockmaterialvar} to {@blockmaterial}
